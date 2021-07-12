@@ -1,4 +1,4 @@
-package dev.gabcarneiro.firebase_remote_config
+package dev.gabcarneiro.firebaseremoteconfig
 
 import io.flutter.embedding.android.FlutterActivity
 
