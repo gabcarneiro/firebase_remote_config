@@ -1,14 +1,15 @@
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+
+import 'remote_config_service.dart';
 
 abstract class UpdateManager {
-  Future<void> needsUpdate();
+  Future<bool> needsUpdate();
 }
 
 class UpdateManagerImpl implements UpdateManager {
-  static const _minVersionKey = 'minimal_version';
+  final RemoteConfigService _remoteConfigService;
 
-  UpdateManagerImpl();
+  UpdateManagerImpl(this._remoteConfigService);
 
   Future<String> _getCurrentVersion() async {
     final packageInfo = await PackageInfo.fromPlatform();
@@ -16,31 +17,23 @@ class UpdateManagerImpl implements UpdateManager {
     return packageInfo.version;
   }
 
-  Future<String> _getMinimalVersion() async {
-    final remoteConfig = RemoteConfig.instance;
-
-    await remoteConfig.fetchAndActivate();
-
-    return remoteConfig.getString(_minVersionKey);
-  }
-
   @override
   Future<bool> needsUpdate() async {
     final currentVersion = await _getCurrentVersion();
-    final minimalVersion = await _getMinimalVersion();
+    final enforcedVersion = _remoteConfigService.enforcedVersion;
 
     final currentVersionNumbers = currentVersion
         .split('.')
         .map((String number) => int.parse(number))
         .toList();
 
-    final minimalVersionNumbers = minimalVersion
+    final enforcedVersionNumbers = enforcedVersion
         .split('.')
         .map((String number) => int.parse(number))
         .toList();
 
     for (int i = 0; i < 3; i++) {
-      if (minimalVersionNumbers[i] > currentVersionNumbers[i]) return true;
+      if (enforcedVersionNumbers[i] > currentVersionNumbers[i]) return true;
     }
 
     return false;
