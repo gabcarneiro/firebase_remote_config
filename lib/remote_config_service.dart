@@ -1,4 +1,6 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/services.dart';
 
 abstract class RemoteConfigService {
   Future<void> initialize();
@@ -31,5 +33,26 @@ class RemoteConfigServiceImpl implements RemoteConfigService {
     );
 
     await _remoteConfig.fetchAndActivate();
+  }
+}
+
+class RealtimeDatabaseRemoteConfigService implements RemoteConfigService {
+  @override
+  String get enforcedVersion => '1.0.0';
+
+  @override
+  Future<void> initialize() async {
+    final reference =
+        FirebaseDatabase.instance.reference().child('app_settings');
+
+    try {
+      final snapshot = await reference.get();
+
+      print(snapshot.value);
+    } catch (e) {
+      if (e is PlatformException) {
+        print(e);
+      }
+    }
   }
 }

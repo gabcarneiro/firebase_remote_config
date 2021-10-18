@@ -6,7 +6,7 @@ GetIt serviceLocator = GetIt.instance;
 
 void setupDependencies() {
   serviceLocator.registerLazySingleton<RemoteConfigService>(
-    () => RemoteConfigServiceImpl(),
+    () => RealtimeDatabaseRemoteConfigService(),
   );
 
   serviceLocator.registerLazySingleton<UpdateManager>(
